@@ -1,6 +1,6 @@
 # PaperTS Framework
 
-A TypeScript framework for writing Minecraft Paper plugins with full type safety and modern development experience.
+A TypeScript framework for writing Minecraft Paper plugins.
 
 Built on top of [PaperTS](https://github.com/MetlHedd/PaperTS) by [@MetlHedd](https://github.com/MetlHedd).
 
