@@ -1,0 +1,13 @@
+{
+  "name": "framework-paperts",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "bundle": "esbuild src/index.ts --bundle --outfile=dist/index.js --platform=node --target=node22 --external:org.* --external:com.* --external:net.* --external:java.*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.8.3"
+  }
+}
