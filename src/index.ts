@@ -11,6 +11,9 @@ class MyPlugin {
       event.getPlayer().getLocation().getY() + " " +
       event.getPlayer().getLocation().getZ()
     )
+    event.getPlayer().sendMessage(event.getPlayer().getDeathSound().toString());
+    event.getPlayer().setInvulnerable(true);
+    event.getPlayer().setFireTicks(500);
   }
 
 }
