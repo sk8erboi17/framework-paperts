@@ -1,26 +1,20 @@
-// ============================================
-// src/types/potionEffect.ts
-// ============================================
-
-import { BukkitLivingEntity } from "../../entities/types/bukkitLivingEntity";
-import { BukkitPotionEffectType } from "../enums/potionEffectType";
-
 /**
- * A constant denoting infinite potion duration.
- * Potion effects with infinite durations will display an infinite
- * symbol and never expire unless manually removed.
- */
-export const INFINITE_DURATION = -1;
-
-/**
- * Represents a potion effect that can be added to a LivingEntity.
- *
- * A potion effect has a duration that it will last for, an amplifier
- * that will enhance its effects, and a PotionEffectType that represents
- * its effect on an entity.
- *
+ * Represents a potion effect, that can be added to a LivingEntity.
+ * A potion effect has a duration that it will last for, an amplifier that will
+ * enhance its effects, and a PotionEffectType, that represents its effect on an entity.
+ * 
  * @see https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/potion/PotionEffect.html
  */
+
+import { BukkitLivingEntity } from "../../entities/types/bukkitLivingEntity";
+import { BukkitColor } from "../enums/colorType";
+import { BukkitPotionEffectType } from "../enums/potionEffectType";
+
+
+// ============================================
+// INTERFACE
+// ============================================
+
 export interface BukkitPotionEffect {
   /**
    * Attempts to add the effect represented by this object to the given LivingEntity.
@@ -30,16 +24,14 @@ export interface BukkitPotionEffect {
   apply(entity: BukkitLivingEntity): boolean;
 
   /**
-   * Returns the amplifier of this effect.
-   * A higher amplifier means the potion effect happens more often
-   * over its duration and in some cases has more effect on its target.
-   * @returns The effect amplifier (0 = level I, 1 = level II, etc.)
+   * Returns the amplifier of this effect. A higher amplifier means the potion effect
+   * happens more often over its duration and in some cases has more effect on its target.
+   * @returns The effect amplifier
    */
   getAmplifier(): number;
 
   /**
-   * Returns the duration (in ticks) that this effect will run for
-   * when applied to a LivingEntity.
+   * Returns the duration (in ticks) that this effect will run for when applied to a LivingEntity.
    * @returns The duration of the effect, or -1 if this effect is infinite
    */
   getDuration(): number;
@@ -51,130 +43,160 @@ export interface BukkitPotionEffect {
   getType(): BukkitPotionEffectType;
 
   /**
-   * Returns whether or not this potion effect has an infinite duration.
-   * Potion effects with infinite durations will display an infinite
-   * symbol and never expire unless manually removed.
-   * @returns Whether this duration is infinite or not
-   */
-  isInfinite(): boolean;
-
-  /**
-   * Returns whether or not this potion effect has a shorter duration
-   * than the provided potion effect.
-   *
-   * An infinite duration is considered longer than non-infinite durations.
-   * If both potion effects have infinite durations, then neither is shorter
-   * than the other and this method will return false.
-   *
-   * @param other - The other effect to compare
-   * @returns True if this effect is shorter than the other, false if longer or equal
-   */
-  isShorterThan(other: BukkitPotionEffect): boolean;
-
-  /**
    * Makes potion effect produce more, translucent, particles.
    * @returns If this effect is ambient
    */
   isAmbient(): boolean;
 
   /**
+   * Returns whether or not this potion effect has an infinite duration.
+   * Potion effects with infinite durations will display an infinite symbol
+   * and never expire unless manually removed.
+   * @returns Whether this duration is infinite or not
+   */
+  isInfinite(): boolean;
+
+  /**
+   * Returns whether or not this potion effect has a shorter duration than the provided potion effect.
+   * An infinite duration is considered longer than non-infinite durations.
+   * If both potion effects have infinite durations, then neither is shorter than the other.
+   * @param other - The other effect
+   * @returns True if this effect is shorter than the other, false if longer or equal
+   */
+  isShorterThan(other: BukkitPotionEffect): boolean;
+
+  /**
+   * Returns whether this effect has particles or not.
    * @returns Whether this effect has particles or not
    */
   hasParticles(): boolean;
 
   /**
+   * Returns whether this effect has an icon or not.
    * @returns Whether this effect has an icon or not
    */
   hasIcon(): boolean;
 
   /**
-   * Creates a Map representation of this class.
-   * @returns Map containing the current state of this class
+   * Returns the color of this potion's particles.
+   * @returns Color of this potion's particles. May be null if the potion has no particles or defined color.
+   * @deprecated Color is not part of potion effects
    */
-  serialize(): Map<string, any>;
+  getColor(): BukkitColor | null;
+
+  /**
+   * Checks equality with another object.
+   * @param obj - The object to compare
+   * @returns True if equal
+   */
+  equals(obj: object): boolean;
+
+  /**
+   * Gets the hash code.
+   * @returns The hash code
+   */
+  hashCode(): number;
+
+  /**
+   * Returns a string representation.
+   * @returns String representation
+   */
+  toString(): string;
 }
 
 // ============================================
-// FACTORY FUNCTIONS
+// POTION EFFECT CLASS INTERFACE
 // ============================================
 
-/**
- * Creates a potion effect.
- *
- * WHY OVERLOADED FACTORY: Java has multiple constructors but TypeScript
- * doesn't support constructor overloading. We use optional parameters
- * with defaults to simulate all Java constructors:
- *
- *   PotionEffect(type, duration, amplifier)
- *   PotionEffect(type, duration, amplifier, ambient)
- *   PotionEffect(type, duration, amplifier, ambient, particles)
- *   PotionEffect(type, duration, amplifier, ambient, particles, icon)
- *
- * @param type - Effect type (e.g., PotionEffectType.SPEED)
- * @param duration - Measured in ticks (20 ticks = 1 second), use INFINITE_DURATION for infinite
- * @param amplifier - The amplifier (0 = level I, 1 = level II, etc.)
- * @param ambient - The ambient status, makes particles more translucent (default: false)
- * @param particles - Whether to show particles (default: true)
- * @param icon - Whether to show the icon in HUD (default: true)
- * @returns A new PotionEffect instance
- *
- * @example
- * // Speed II for 10 seconds
- * createPotionEffect(PotionEffectType.SPEED, 200, 1)
- *
- * // Infinite invisibility with ambient particles
- * createPotionEffect(PotionEffectType.INVISIBILITY, INFINITE_DURATION, 0, true)
- *
- * // Hidden regeneration (no particles, no icon)
- * createPotionEffect(PotionEffectType.REGENERATION, 600, 2, false, false, false)
+/*
+ * PotionEffect is a regular class (not enum, not abstract with static fields).
+ * It has constructors and one static constant (INFINITE_DURATION).
+ * 
+ * In TypeScript/JavaScript, we can't directly call Java constructors with `new`,
+ * so we expose factory methods that delegate to the Java constructors.
  */
-export function createPotionEffect(
-  type: BukkitPotionEffectType,
-  duration: number,
-  amplifier: number,
-  ambient: boolean = false,
-  particles: boolean = true,
-  icon: boolean = true
-): BukkitPotionEffect {
-  return new org.bukkit.potion.PotionEffect(
-    type,
-    duration,
-    amplifier,
-    ambient,
-    particles,
-    icon
-  );
+interface PotionEffectClass {
+  /** A constant denoting infinite potion duration. */
+  readonly INFINITE_DURATION: number;
+
+  /**
+   * Creates a potion effect.
+   * @param type - Effect type
+   * @param duration - Measured in ticks
+   * @param amplifier - The amplifier for the effect
+   * @returns A new PotionEffect
+   */
+  create(type: BukkitPotionEffectType, duration: number, amplifier: number): BukkitPotionEffect;
+
+  /**
+   * Creates a potion effect.
+   * @param type - Effect type
+   * @param duration - Measured in ticks
+   * @param amplifier - The amplifier for the effect
+   * @param ambient - The ambient status
+   * @returns A new PotionEffect
+   */
+  create(type: BukkitPotionEffectType, duration: number, amplifier: number, ambient: boolean): BukkitPotionEffect;
+
+  /**
+   * Creates a potion effect with no defined color.
+   * @param type - Effect type
+   * @param duration - Measured in ticks
+   * @param amplifier - The amplifier for the effect
+   * @param ambient - The ambient status
+   * @param particles - The particle status
+   * @returns A new PotionEffect
+   */
+  create(type: BukkitPotionEffectType, duration: number, amplifier: number, ambient: boolean, particles: boolean): BukkitPotionEffect;
+
+  /**
+   * Creates a potion effect.
+   * @param type - Effect type
+   * @param duration - Measured in ticks
+   * @param amplifier - The amplifier for the effect
+   * @param ambient - The ambient status
+   * @param particles - The particle status
+   * @param icon - The icon status
+   * @returns A new PotionEffect
+   */
+  create(type: BukkitPotionEffectType, duration: number, amplifier: number, ambient: boolean, particles: boolean, icon: boolean): BukkitPotionEffect;
+
+  /**
+   * Deserializes a PotionEffect from a map representation.
+   * @param map - The map to deserialize from
+   * @returns A new PotionEffect
+   */
+  deserialize(map: Map<string, object>): BukkitPotionEffect;
 }
 
-/**
- * Creates a potion effect with infinite duration.
- *
- * Convenience function for creating effects that never expire.
- *
- * @param type - Effect type
- * @param amplifier - The amplifier (0 = level I)
- * @param ambient - The ambient status (default: false)
- * @param particles - Whether to show particles (default: true)
- * @param icon - Whether to show the icon (default: true)
- * @returns A new PotionEffect with infinite duration
- *
- * @example
- * // Permanent night vision
- * createInfinitePotionEffect(PotionEffectType.NIGHT_VISION, 0)
- */
-export function createInfinitePotionEffect(
-  type: BukkitPotionEffectType,
-  amplifier: number,
-  ambient: boolean = false,
-  particles: boolean = true,
-  icon: boolean = true
-): BukkitPotionEffect {
-  return createPotionEffect(
-    type,
-    INFINITE_DURATION,
-    amplifier,
-    ambient,
-    particles,
-    icon
-  );
-}
+// ============================================
+// POTION EFFECT
+// ============================================
+
+export const PotionEffect: PotionEffectClass = {
+  INFINITE_DURATION: org.bukkit.potion.PotionEffect.INFINITE_DURATION,
+
+  create(
+    type: BukkitPotionEffectType,
+    duration: number,
+    amplifier: number,
+    ambient?: boolean,
+    particles?: boolean,
+    icon?: boolean
+  ): BukkitPotionEffect {
+    if (icon !== undefined) {
+      return new org.bukkit.potion.PotionEffect(type, duration, amplifier, ambient, particles, icon);
+    }
+    if (particles !== undefined) {
+      return new org.bukkit.potion.PotionEffect(type, duration, amplifier, ambient, particles);
+    }
+    if (ambient !== undefined) {
+      return new org.bukkit.potion.PotionEffect(type, duration, amplifier, ambient);
+    }
+    return new org.bukkit.potion.PotionEffect(type, duration, amplifier);
+  },
+
+  deserialize(map: Map<string, object>): BukkitPotionEffect {
+    return new org.bukkit.potion.PotionEffect(map);
+  },
+};

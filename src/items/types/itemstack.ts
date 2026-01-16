@@ -9,6 +9,7 @@
 
 import { BukkitMaterial } from "../enums/materialType";
 import { BukkitEnchantment } from "../enums/enchantmentType";
+import { BukkitMaterialData } from "./materialData";
 
 // ============================================
 // INTERFACES
@@ -135,34 +136,6 @@ export interface BukkitItemMeta {
    * @returns A clone
    */
   clone(): BukkitItemMeta;
-}
-
-export interface BukkitMaterialData {
-  /**
-   * Gets the Material that this MaterialData represents.
-   * @returns The material
-   */
-  getItemType(): BukkitMaterial;
-
-  /**
-   * Gets the raw data in this MaterialData.
-   * @returns The raw data
-   * @deprecated Magic value
-   */
-  getData(): number;
-
-  /**
-   * Sets the raw data of this MaterialData.
-   * @param data - The raw data to set
-   * @deprecated Magic value
-   */
-  setData(data: number): void;
-
-  /**
-   * Returns a clone of this MaterialData.
-   * @returns A clone
-   */
-  clone(): BukkitMaterialData;
 }
 
 export interface BukkitItemStack {

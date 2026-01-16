@@ -135,31 +135,3 @@ export function createUUID(mostSigBits: number, leastSigBits: number): JavaUUID 
 export function nameUUIDFromBytes(name: number[]): JavaUUID {
   return java.util.UUID.nameUUIDFromBytes(name);
 }
-
-/**
- * Gets a player by their UUID.
- * 
- * @param uuid - The player's UUID (string or JavaUUID object)
- * @returns The player or null if not online
- * 
- * @example
- * const player = getPlayerByUUID("f24f95da-b97e-4f87-99e1-b03d2072eeb1");
- */
-export function getPlayerByUUID(uuid: string | JavaUUID): any | null {
-  const uuidObj = typeof uuid === "string" ? fromUUIDString(uuid) : uuid;
-  return org.bukkit.Bukkit.getPlayer(uuidObj);
-}
-
-/**
- * Gets an offline player by their UUID.
- * 
- * @param uuid - The player's UUID (string or JavaUUID object)
- * @returns The offline player (never null, but may not have played before)
- * 
- * @example
- * const offlinePlayer = getOfflinePlayerByUUID("f24f95da-b97e-4f87-99e1-b03d2072eeb1");
- */
-export function getOfflinePlayerByUUID(uuid: string | JavaUUID): any {
-  const uuidObj = typeof uuid === "string" ? fromUUIDString(uuid) : uuid;
-  return org.bukkit.Bukkit.getOfflinePlayer(uuidObj);
-}

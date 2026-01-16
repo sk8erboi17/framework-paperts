@@ -1,9 +1,101 @@
 /**
- * Bukkit EntityType enum values.
+ * Represents the various types of entities in Bukkit.
  * 
  * @see https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EntityType.html
  */
-export const EntityType = {
+
+import { JavaEnum, JavaEnumClass } from "../../java/types/enum";
+import { JavaClass } from "../../java/types/class";
+import { BukkitEntity } from "../types/bukkitEntity";
+
+// ============================================
+// TYPE DEFINITIONS
+// ============================================
+
+export type EntityTypeKey =
+  // Passive mobs
+  | "ALLAY" | "ARMADILLO" | "AXOLOTL" | "BAT" | "BEE"
+  | "CAMEL" | "CAT" | "CHICKEN" | "COD" | "COW"
+  | "DOLPHIN" | "DONKEY" | "FOX" | "FROG" | "GLOW_SQUID"
+  | "GOAT" | "HORSE" | "LLAMA" | "MOOSHROOM" | "MULE"
+  | "OCELOT" | "PANDA" | "PARROT" | "PIG" | "POLAR_BEAR"
+  | "PUFFERFISH" | "RABBIT" | "SALMON" | "SHEEP" | "SNIFFER"
+  | "SNOW_GOLEM" | "SQUID" | "STRIDER" | "TADPOLE" | "TRADER_LLAMA"
+  | "TROPICAL_FISH" | "TURTLE" | "VILLAGER" | "WANDERING_TRADER" | "WOLF"
+  // Hostile mobs
+  | "BLAZE" | "BOGGED" | "BREEZE" | "CAVE_SPIDER" | "CREEPER"
+  | "DROWNED" | "ELDER_GUARDIAN" | "ENDER_DRAGON" | "ENDERMAN" | "ENDERMITE"
+  | "EVOKER" | "GHAST" | "GIANT" | "GUARDIAN" | "HOGLIN"
+  | "HUSK" | "ILLUSIONER" | "IRON_GOLEM" | "MAGMA_CUBE" | "PHANTOM"
+  | "PIGLIN" | "PIGLIN_BRUTE" | "PILLAGER" | "RAVAGER" | "SHULKER"
+  | "SILVERFISH" | "SKELETON" | "SKELETON_HORSE" | "SLIME" | "SPIDER"
+  | "STRAY" | "VEX" | "VINDICATOR" | "WARDEN" | "WITCH"
+  | "WITHER" | "WITHER_SKELETON" | "ZOGLIN" | "ZOMBIE" | "ZOMBIE_HORSE"
+  | "ZOMBIE_VILLAGER" | "ZOMBIFIED_PIGLIN"
+  // Projectiles
+  | "ARROW" | "DRAGON_FIREBALL" | "EGG" | "ENDER_PEARL" | "EXPERIENCE_BOTTLE"
+  | "FIREBALL" | "FIREWORK_ROCKET" | "LLAMA_SPIT" | "SHULKER_BULLET" | "SMALL_FIREBALL"
+  | "SNOWBALL" | "SPECTRAL_ARROW" | "SPLASH_POTION" | "LINGERING_POTION" | "TRIDENT"
+  | "WIND_CHARGE" | "BREEZE_WIND_CHARGE" | "WITHER_SKULL"
+  // Vehicles
+  | "ACACIA_BOAT" | "ACACIA_CHEST_BOAT" | "BAMBOO_RAFT" | "BAMBOO_CHEST_RAFT"
+  | "BIRCH_BOAT" | "BIRCH_CHEST_BOAT" | "CHERRY_BOAT" | "CHERRY_CHEST_BOAT"
+  | "DARK_OAK_BOAT" | "DARK_OAK_CHEST_BOAT" | "JUNGLE_BOAT" | "JUNGLE_CHEST_BOAT"
+  | "MANGROVE_BOAT" | "MANGROVE_CHEST_BOAT" | "OAK_BOAT" | "OAK_CHEST_BOAT"
+  | "PALE_OAK_BOAT" | "PALE_OAK_CHEST_BOAT" | "SPRUCE_BOAT" | "SPRUCE_CHEST_BOAT"
+  | "MINECART" | "CHEST_MINECART" | "COMMAND_BLOCK_MINECART" | "FURNACE_MINECART"
+  | "HOPPER_MINECART" | "SPAWNER_MINECART" | "TNT_MINECART"
+  // Other
+  | "ARMOR_STAND" | "END_CRYSTAL" | "EVOKER_FANGS" | "EXPERIENCE_ORB" | "EYE_OF_ENDER"
+  | "FALLING_BLOCK" | "FISHING_BOBBER" | "GLOW_ITEM_FRAME" | "ITEM" | "ITEM_DISPLAY"
+  | "ITEM_FRAME" | "BLOCK_DISPLAY" | "TEXT_DISPLAY" | "INTERACTION" | "LEASH_KNOT"
+  | "LIGHTNING_BOLT" | "MARKER" | "PAINTING" | "PLAYER" | "TNT"
+  | "AREA_EFFECT_CLOUD" | "UNKNOWN";
+
+// ============================================
+// INTERFACE
+// ============================================
+
+export interface BukkitEntityType extends JavaEnum<EntityTypeKey> {
+  /**
+   * Gets the entity type name.
+   * @returns The entity type name
+   */
+  getName(): string;
+
+  /**
+   * Gets the entity class for this EntityType.
+   * @returns The entity class, or null if not a living entity
+   */
+  getEntityClass(): JavaClass<BukkitEntity> | null;
+
+  /**
+   * Returns true if the entity type is spawnable.
+   * @returns True if spawnable
+   */
+  isSpawnable(): boolean;
+
+  /**
+   * Returns true if the entity type is alive (a LivingEntity).
+   * @returns True if alive
+   */
+  isAlive(): boolean;
+}
+
+// ============================================
+// ENTITY TYPE CLASS INTERFACE
+// ============================================
+
+interface EntityTypeClass extends
+  Omit<Record<EntityTypeKey, BukkitEntityType>, keyof JavaEnumClass<BukkitEntityType>>,
+  JavaEnumClass<BukkitEntityType> {
+}
+
+// ============================================
+// ENTITY TYPES
+// ============================================
+
+export const EntityType: EntityTypeClass = {
   // Passive mobs
   ALLAY: org.bukkit.entity.EntityType.ALLAY,
   ARMADILLO: org.bukkit.entity.EntityType.ARMADILLO,
@@ -162,64 +254,13 @@ export const EntityType = {
   TNT: org.bukkit.entity.EntityType.TNT,
   AREA_EFFECT_CLOUD: org.bukkit.entity.EntityType.AREA_EFFECT_CLOUD,
   UNKNOWN: org.bukkit.entity.EntityType.UNKNOWN,
-} as const;
 
-/**
- * Type for EntityType values - enables autocomplete.
- * 
- * WHY TYPEOF: In TypeScript, there's a fundamental distinction between
- * values and types. EntityType is a value (a const object), but we need
- * a type to use in function signatures and type annotations.
- * 
- *   const EntityType = { PIG: ..., COW: ... };  // This is a VALUE
- *   type WhatWeNeed = ???                        // We need a TYPE
- * 
- * `typeof EntityType` bridges this gap - it extracts the type from a value:
- * 
- *   typeof EntityType = {
- *     PIG: any;
- *     COW: any;
- *     ZOMBIE: any;
- *     // ... all the keys with their types
- *   }
- * 
- * WHY KEYOF: Once we have the object type, `keyof` extracts all property
- * names as a union type:
- * 
- *   keyof typeof EntityType = "PIG" | "COW" | "ZOMBIE" | "SHEEP" | ...
- * 
- * This union type enables autocomplete. When you type:
- * 
- *   function spawnMob(type: EntityTypeKey) { ... }
- *   spawnMob("P|")  // IDE suggests: "PIG", "PLAYER", "PHANTOM", etc.
- * 
- * THE ANY PROBLEM: Notice that our EntityType values are typed as `any`:
- * 
- *   PIG: org.bukkit.entity.EntityType.PIG  // org is any, so this is any
- * 
- * This means TypeScript can't verify at compile time that you're passing
- * a valid EntityType to a function expecting one. The Java enum value is
- * opaque to TypeScript - it's just "some object from Java land".
- * 
- * However, we still get benefits:
- * 
- *   1. Autocomplete for the KEYS ("PIG", "COW", etc.)
- *   2. Typo prevention - EntityType.PIGG won't compile
- *   3. Centralized mapping - one place to maintain Java references
- * 
- * The alternative would be to define strict types for every Java class,
- * which is impractical. We accept `any` for Java interop values while
- * maintaining type safety for our own TypeScript code.
- * 
- * PRACTICAL EXAMPLE:
- * 
- *   // Without EntityTypeKey - accepts any string, no autocomplete
- *   function spawn(type: string) { ... }
- *   spawn("PIGG")  // No error, fails at runtime
- * 
- *   // With EntityTypeKey - autocomplete works, typos caught
- *   function spawn(type: EntityTypeKey) { ... }
- *   spawn("PIGG")  // Compile error: "PIGG" is not assignable to EntityTypeKey
- *   spawn("PIG")   // OK
- */
-export type EntityTypeKey = keyof typeof EntityType;
+  // Static enum methods
+  values(): BukkitEntityType[] {
+    return org.bukkit.entity.EntityType.values();
+  },
+
+  valueOf(name: string): BukkitEntityType {
+    return org.bukkit.entity.EntityType.valueOf(name);
+  },
+};
